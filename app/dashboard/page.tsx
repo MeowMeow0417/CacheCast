@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SimulationVisualizer } from '@/components/custom/SimulationVisualizer';
+import Link from 'next/link'
 
 const cities = ['Tokyo', 'Paris', 'Rome', 'London', 'Berlin', 'Bangkok', 'Manila', 'Seoul', 'Oslo', 'Beijing'];
 
@@ -95,6 +96,8 @@ const CacheSim: React.FC = () => {
   const [cacheSize, setCacheSize] = useState(3);
   const [requests, setRequests] = useState<string[]>([]);
   const [results, setResults] = useState<{ fifo: number; lru: number; opt: number } | null>(null);
+
+
 
   const runSimulation = () => {
     const reqs = generateRequests(20);
@@ -191,6 +194,12 @@ const CacheSim: React.FC = () => {
         </div>
         )}
     </section>
+    <Link
+      href="/dashboard/learn"
+      className="p-4 bg-accent rounded-md hover:shadow-md transition-all duration-300"
+    >
+      FIFO
+    </Link>
     </section>
 
   );
