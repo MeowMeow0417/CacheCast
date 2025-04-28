@@ -12,6 +12,7 @@ import {
   Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
 
 
 // Generate better page request patterns
@@ -130,7 +131,7 @@ const buildOPTSteps = (requests: string[], cacheSize: number) => {
 const CacheVisualizer: React.FC<{
   step: { cache: string[]; current: string; hit: boolean; evicted: string | null };
 }> = ({ step }) => (
-  <Card className="flex gap-2 p-6 border rounded-xl w-full justify-center flex-col text-center">
+  <Card className="flex gap-2 p-6 border rounded-xl w-full justify-center flex-row text-center">
     <AnimatePresence>
       {/* Render Cache Pages */}
       {step.cache.map((page) => (
@@ -219,11 +220,11 @@ const StatsDashboard: React.FC<{
   const missRate = totalRequests ? ((totalFaults / totalRequests) * 100).toFixed(2) : '0.00';
 
   return (
-    <Card className="w-full h-72">
+    <Card className="w-full ">
       <CardHeader className='gap-0'>
         <CardTitle className="text-lg text-center">Statistics</CardTitle>
       </CardHeader>
-      <CardContent className="grid grid-cols-1 gap-4 p-6 text-center py-0">
+      <CardContent className="flex flex-row gap-4 p-6 text-center py-0 justify-center">
 
         <div>
           <div className="text-xs text-muted-foreground">Page Hits</div>
@@ -307,112 +308,131 @@ const CacheSim: React.FC = () => {
   }, [isPlaying, speed, steps]);
 
   return (
-<section className="flex flex-col items-center justify-center p-6 max-w-7xl mx-auto h-screen">
-  {/* Title */}
-  <Label className="text-2xl font-bold mb-6 text-center">
-    Page Replacement Simulator - {algorithm}
-  </Label>
+    // TODO: have a skeleton setted for as blank, before any generation
+    <section className="flex flex-col p-6 w-[1400px] mx-auto h-screen">
 
-  {/* Algorithm and Input Controls */}
-  <aside className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full mb-8 border p-6 rounded-lg shadow-md">
-    <div className="flex flex-col gap-2">
-      <Label className="text-sm">Algorithm:</Label>
-      <Select value={algorithm} onValueChange={(val) => setAlgorithm(val as 'FIFO' | 'LRU' | 'OPT')}>
-        <SelectTrigger>
-          <SelectValue placeholder="Select an algorithm" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="FIFO">FIFO</SelectItem>
-          <SelectItem value="LRU">LRU</SelectItem>
-          <SelectItem value="OPT">OPT</SelectItem>
-        </SelectContent>
-      </Select>
-    </div>
+    {/* Title */}
+    <Label className="text-2xl font-bold mb-6 text-center">
+      Page Replacement Simulator - {algorithm}
+    </Label>
 
-    <div className="flex flex-col gap-2">
-      <Label className="text-sm">Cache Size:</Label>
-      <Input
-        type="number"
-        value={cacheSize}
-        min={1}
-        max={20}
-        onChange={(e) => setCacheSize(parseInt(e.target.value))}
-      />
-    </div>
+    {/* Main Layout: Aside Left, Right Stack */}
+    <div className="flex flex-1 gap-6">
 
-    <div className="flex flex-col gap-2">
-      <Label className="text-sm"># of Requests:</Label>
-      <Input
-        type="number"
-        value={numRequests}
-        min={1}
-        max={100}
-        onChange={(e) => setNumRequests(parseInt(e.target.value))}
-      />
-    </div>
+      {/* Left: Aside + Controls */}
+      <div className="flex flex-col gap-6 w-full max-w-sm">
 
-    <div className="flex items-end">
-      <Button
-        onClick={runSimulation}
-        className="w-full"
-        disabled={cacheSize <= 0 || numRequests <= 0}
-      >
-        🎲 Generate Requests
-      </Button>
-    </div>
-  </aside>
+        {/* Aside Controls */}
+        <aside className="border p-6 rounded-lg shadow-md flex flex-col gap-6" suppressHydrationWarning>
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm">Algorithm:</Label>
+            <Select value={algorithm} onValueChange={(val) => setAlgorithm(val as 'FIFO' | 'LRU' | 'OPT')}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select an algorithm" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="FIFO">FIFO</SelectItem>
+                <SelectItem value="LRU">LRU</SelectItem>
+                <SelectItem value="OPT">OPT</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-  {/* Page Reference String Display */}
-  {requests.length > 0 && (
-    <Card className="w-full mb-8">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold">Page Reference String: </CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-wrap gap-2 justify-center p-4 py-0">
-        {requests.map((page, idx) => (
-          <span
-            key={idx}
-            className="px-2 py-1 bg-gray-100 border rounded text-sm dark:text-black"
-          >
-            {page}
-          </span>
-        ))}
-      </CardContent>
-    </Card>
-  )}
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm">Cache Size:</Label>
+            <Input
+              type="number"
+              value={cacheSize}
+              min={1}
+              max={20}
+              onChange={(e) => setCacheSize(parseInt(e.target.value))}
+            />
+          </div>
 
-  {/* Simulation Controls and Visualizer */}
-  {steps.length > 0 && (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm"># of Requests:</Label>
+            <Input
+              type="number"
+              value={numRequests}
+              min={1}
+              max={100}
+              onChange={(e) => setNumRequests(parseInt(e.target.value))}
+            />
+          </div>
 
-      {/* Controls */}
-      <SimulationControls
-        isPlaying={isPlaying}
-        onPlay={() => setIsPlaying(true)}
-        onPause={() => setIsPlaying(false)}
-        onStep={() => setCurrentStep((s) => Math.min(s + 1, steps.length - 1))}
-        onReset={() => setCurrentStep(0)}
-        speed={speed}
-        setSpeed={setSpeed}
-      />
+          <div className="flex items-end">
+            <Button
+              onClick={runSimulation}
+              className="w-full"
+              disabled={cacheSize <= 0 || numRequests <= 0}
+            >
+              🎲 Generate Requests
+            </Button>
+          </div>
+        </aside>
 
-      {/* Visualizer */}
-      <div className="flex flex-col items-center">
-        <Label className="text-xl mb-2">
-          Current Request: <span className="font-bold">{steps[currentStep]?.current}</span>
-        </Label>
-        <CacheVisualizer step={steps[currentStep]} />
+        {/* Simulation Controls */}
+
+        {steps.length > 0 ?
+          <SimulationControls
+          isPlaying={isPlaying}
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
+          onStep={() => setCurrentStep((s) => Math.min(s + 1, steps.length - 1))}
+          onReset={() => setCurrentStep(0)}
+          speed={speed}
+          setSpeed={setSpeed}
+          /> :
+          <Skeleton className="w-96 h-72 rounded-md" />
+        }
       </div>
 
-      {/* Statistics */}
-      <StatsDashboard
-        totalRequests={totalRequests}
-        totalHits={totalHits}
-        totalFaults={totalFaults}
-      />
+      {/* Right: PageRefs -> CurrentRequest -> Statistics */}
+      <div className="flex flex-col flex-1 gap-6">
+
+        {/* Page Reference String */}
+        {requests.length > 0 ?
+          <Card className="w-full">
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold">Page Reference String</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-wrap gap-2 justify-center p-4 py-0">
+              {requests.map((page, idx) => (
+                <span
+                  key={idx}
+                  className="px-2 py-1 bg-gray-100 border rounded text-sm dark:text-black"
+                >
+                  {page}
+                </span>
+              ))}
+            </CardContent>
+          </Card>
+        :
+        <Skeleton className="w-[950px] h-32 rounded-md" />
+        }
+
+        {/* Current Request Visualizer */}
+        {steps.length > 0 && (
+          <div className="flex flex-col items-center">
+            <Label className="text-xl mb-2">
+              Current Request: <span className="font-bold">{steps[currentStep]?.current}</span>
+            </Label>
+            <CacheVisualizer step={steps[currentStep]} />
+          </div>
+        )}
+
+        {/* Statistics Dashboard */}
+        {steps.length > 0 && (
+          <StatsDashboard
+            totalRequests={totalRequests}
+            totalHits={totalHits}
+            totalFaults={totalFaults}
+          />
+        )}
+
+      </div>
     </div>
-  )}
-</section>
+    </section>
 
   );
 };

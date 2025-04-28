@@ -33,7 +33,7 @@ const HomeRedirectPage = () => {
       {loading && (
         <div className="text-center space-y-4 w-[300px]">
           <h1 className="text-xl font-semibold animate-pulse">
-            Loading CacheCast...
+            Loading Cache Simulator...
           </h1>
           <Progress value={progress} className="w-full mx-auto transition-all duration-300 ease-in-out" />
         </div>
