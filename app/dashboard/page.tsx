@@ -9,7 +9,7 @@ import {
   } from "@/components/ui/select"
 import { Label } from '@/components/ui/label';
 import {
-  Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter
+  Card, CardHeader, CardTitle, CardContent,
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -216,8 +216,8 @@ const StatsDashboard: React.FC<{
   totalHits: number;
   totalFaults: number;
 }> = ({ totalRequests, totalHits, totalFaults }) => {
-  const hitRate = totalRequests ? ((totalHits / totalRequests) * 100).toFixed(2) : '0.00';
-  const missRate = totalRequests ? ((totalFaults / totalRequests) * 100).toFixed(2) : '0.00';
+  // const hitRate = totalRequests ? ((totalHits / totalRequests) * 100).toFixed(2) : '0.00';
+  // const missRate = totalRequests ? ((totalFaults / totalRequests) * 100).toFixed(2) : '0.00';
 
   return (
     <Card className="w-full ">
