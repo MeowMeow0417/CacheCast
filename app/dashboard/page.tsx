@@ -31,9 +31,6 @@ const generateRequests = (length: number) => {
   return requests;
 };
 
-// const generateRequests = (length: number) => {
-//   return Array.from({length: })
-// }
 
 // FIFO Algorithm
 const buildFIFOSteps = (requests: string[], cacheSize: number) => {
@@ -133,8 +130,9 @@ const buildOPTSteps = (requests: string[], cacheSize: number) => {
 const CacheVisualizer: React.FC<{
   step: { cache: string[]; current: string; hit: boolean; evicted: string | null };
 }> = ({ step }) => (
-  <Card className="flex gap-2 p-6 border rounded-xl w-full justify-center flex-row">
+  <Card className="flex gap-2 p-6 border rounded-xl w-full justify-center flex-col text-center">
     <AnimatePresence>
+      {/* Render Cache Pages */}
       {step.cache.map((page) => (
         <motion.div
           key={page}
@@ -143,16 +141,29 @@ const CacheVisualizer: React.FC<{
           exit={{ scale: 0.5, opacity: 0 }}
           className={`px-4 py-2 rounded-full border text-sm font-medium transition-all duration-300 dark:text-black
             ${step.current === page && step.hit ? 'bg-green-300 border-green-500' :
-            step.evicted === page ? 'bg-red-200 border-red-500' :
-            'bg-gray-100 border-gray-300'}
+              'bg-gray-100 border-gray-300'}
           `}
         >
           {page}
         </motion.div>
       ))}
+
+      {/* Render Evicted Page Separately */}
+      {step.evicted && (
+        <motion.div
+          key={`evicted-${step.evicted}`}
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.5, opacity: 0 }}
+          className="px-4 py-2 rounded-full border text-sm font-medium transition-all duration-300 bg-red-200 border-red-500 dark:text-black z-10"
+        >
+          {step.evicted}
+        </motion.div>
+      )}
     </AnimatePresence>
   </Card>
 );
+
 
 const SimulationControls: React.FC<{
   isPlaying: boolean;
@@ -163,19 +174,41 @@ const SimulationControls: React.FC<{
   speed: number;
   setSpeed: (s: number) => void;
 }> = ({ isPlaying, onPlay, onPause, onStep, onReset, speed, setSpeed }) => (
-  <Card className="flex flex-col gap-4 p-6">
-    <div className="flex flex-wrap gap-3 justify-center">
-      <Button onClick={onStep}>Step</Button>
-      <Button onClick={isPlaying ? onPause : onPlay}>{isPlaying ? 'Pause' : 'Play'}</Button>
-      <Button variant="destructive" onClick={onReset}>Reset</Button>
-    </div>
-    <div className="flex items-center gap-2 pt-2">
-      <span className="text-sm">Speed</span>
-      <Slider min={0.2} max={2} step={0.1} value={[speed]} onValueChange={([val]) => setSpeed(val)} className="w-48" />
-      <span className="text-sm ml-2">{speed.toFixed(1)}x</span> {/* Show the speed */}
-    </div>
+  <Card className="w-full h-72">
+    <CardHeader className='gap-0'>
+      <CardTitle className="text-lg text-center">Controls</CardTitle>
+    </CardHeader>
+    <CardContent className="flex flex-col gap-6 p-6 pt-0">
+
+      {/* Speed Control */}
+      <div className="flex flex-col gap-2">
+        <Label className="text-sm text-center">Speed</Label>
+        <div className="flex items-center gap-2">
+          <Slider
+            min={0.2}
+            max={2}
+            step={0.1}
+            value={[speed]}
+            onValueChange={([val]) => setSpeed(val)}
+            className="w-full"
+          />
+          <span className="text-sm w-8 text-right">{speed.toFixed(1)}x</span>
+        </div>
+      </div>
+
+      {/* Buttons */}
+      <div className="flex flex-col gap-2">
+        <Button onClick={onStep} variant="outline">Step</Button>
+        <Button onClick={isPlaying ? onPause : onPlay}>
+          {isPlaying ? 'Pause' : 'Play'}
+        </Button>
+        <Button variant="destructive" onClick={onReset}>Reset</Button>
+      </div>
+
+    </CardContent>
   </Card>
 );
+
 
 const StatsDashboard: React.FC<{
   totalRequests: number;
@@ -186,27 +219,33 @@ const StatsDashboard: React.FC<{
   const missRate = totalRequests ? ((totalFaults / totalRequests) * 100).toFixed(2) : '0.00';
 
   return (
-    <Card className="grid grid-cols-2 gap-4 p-4 border rounded-xlw-64 text-center">
-      <div>
-        <div className="text-xs">Total Requests</div>
-        <div className="font-bold text-lg">{totalRequests}</div>
-      </div>
-      <div>
-        <div className="text-xs">Page Faults</div>
-        <div className="font-bold text-lg text-red-500">{totalFaults}</div>
-      </div>
-      <div>
-        <div className="text-xs">Page Hits</div>
-        <div className="font-bold text-lg text-green-500">{totalHits}</div>
-      </div>
-      <div>
-        <div className="text-xs">Hit Rate</div>
-        <div className="font-bold text-lg text-blue-500">{hitRate}%</div>
-      </div>
-      <div className="col-span-2">
-        <div className="text-xs">Miss Rate</div>
-        <div className="font-bold text-lg text-purple-500">{missRate}%</div>
-      </div>
+    <Card className="w-full h-72">
+      <CardHeader className='gap-0'>
+        <CardTitle className="text-lg text-center">Statistics</CardTitle>
+      </CardHeader>
+      <CardContent className="grid grid-cols-1 gap-4 p-6 text-center py-0">
+
+        <div>
+          <div className="text-xs text-muted-foreground">Page Hits</div>
+          <div className="font-bold text-xl text-green-500">{totalHits}</div>
+        </div>
+        <div>
+          <div className="text-xs text-muted-foreground">Page Faults</div>
+          <div className="font-bold text-xl text-red-500">{totalFaults}</div>
+        </div>
+        <div>
+          <div className="text-xs text-muted-foreground">Total Requests</div>
+          <div className="font-bold text-xl">{totalRequests}</div>
+        </div>
+        {/* <div>
+          <div className="text-xs text-muted-foreground">Hit Rate</div>
+          <div className="font-bold text-xl text-blue-500">{hitRate}%</div>
+        </div>
+        <div className="col-span-2">
+          <div className="text-xs text-muted-foreground">Miss Rate</div>
+          <div className="font-bold text-xl text-purple-500">{missRate}%</div>
+        </div> */}
+      </CardContent>
     </Card>
   );
 };
@@ -258,116 +297,122 @@ const CacheSim: React.FC = () => {
     } else if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
-    return () => intervalRef.current && clearInterval(intervalRef.current);
+
+    // ✅ Proper cleanup function
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
   }, [isPlaying, speed, steps]);
 
   return (
-    <section className="flex flex-col items-center justify-center p-6">
-      <Label className="text-2xl font-bold mb-6">📚 Page Replacement Simulator - {algorithm}</Label>
+<section className="flex flex-col items-center justify-center p-6 max-w-7xl mx-auto h-screen">
+  {/* Title */}
+  <Label className="text-2xl font-bold mb-6 text-center">
+    Page Replacement Simulator - {algorithm}
+  </Label>
 
-      {/* Algorithm and Input Controls */}
-      <main className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 items-center justify-center mb-8 border-2 p-4 rounded-lg shadow-lg">
-        <div className="flex items-center gap-4">
-          <Label className="text-sm">Algorithm:</Label>
-          <Select value={algorithm} onValueChange={(val) => setAlgorithm(val as 'FIFO' | 'LRU' | 'OPT')}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Select an algorithm" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="FIFO">FIFO</SelectItem>
-              <SelectItem value="LRU">LRU</SelectItem>
-              <SelectItem value="OPT">OPT</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+  {/* Algorithm and Input Controls */}
+  <aside className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full mb-8 border p-6 rounded-lg shadow-md">
+    <div className="flex flex-col gap-2">
+      <Label className="text-sm">Algorithm:</Label>
+      <Select value={algorithm} onValueChange={(val) => setAlgorithm(val as 'FIFO' | 'LRU' | 'OPT')}>
+        <SelectTrigger>
+          <SelectValue placeholder="Select an algorithm" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="FIFO">FIFO</SelectItem>
+          <SelectItem value="LRU">LRU</SelectItem>
+          <SelectItem value="OPT">OPT</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
 
-        <div className="flex items-center gap-4">
-          <Label className="text-sm">Cache Size:</Label>
-          <Input
-            type="number"
-            value={cacheSize}
-            min={1}
-            max={20}
-            onChange={(e) => setCacheSize(parseInt(e.target.value))}
-            className="w-24"
-          />
-        </div>
+    <div className="flex flex-col gap-2">
+      <Label className="text-sm">Cache Size:</Label>
+      <Input
+        type="number"
+        value={cacheSize}
+        min={1}
+        max={20}
+        onChange={(e) => setCacheSize(parseInt(e.target.value))}
+      />
+    </div>
 
-        <div className="flex items-center gap-4">
-          <Label className="text-sm"># of Requests:</Label>
-          <Input
-            type="number"
-            value={numRequests}
-            min={1}
-            max={100}
-            onChange={(e) => setNumRequests(parseInt(e.target.value))}
-            className="w-24"
-          />
-        </div>
+    <div className="flex flex-col gap-2">
+      <Label className="text-sm"># of Requests:</Label>
+      <Input
+        type="number"
+        value={numRequests}
+        min={1}
+        max={100}
+        onChange={(e) => setNumRequests(parseInt(e.target.value))}
+      />
+    </div>
 
-        <div className="flex items-center gap-4">
-          <Button
-            onClick={runSimulation}
-            className="w-48"
-            disabled={cacheSize <= 0 || numRequests <= 0}
+    <div className="flex items-end">
+      <Button
+        onClick={runSimulation}
+        className="w-full"
+        disabled={cacheSize <= 0 || numRequests <= 0}
+      >
+        🎲 Generate Requests
+      </Button>
+    </div>
+  </aside>
+
+  {/* Page Reference String Display */}
+  {requests.length > 0 && (
+    <Card className="w-full mb-8">
+      <CardHeader>
+        <CardTitle className="text-lg font-semibold">Page Reference String: </CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-wrap gap-2 justify-center p-4 py-0">
+        {requests.map((page, idx) => (
+          <span
+            key={idx}
+            className="px-2 py-1 bg-gray-100 border rounded text-sm dark:text-black"
           >
-            🎲 Generate Requests
-          </Button>
-        </div>
-      </main>
+            {page}
+          </span>
+        ))}
+      </CardContent>
+    </Card>
+  )}
 
-      {/* Page Reference String Display */}
-      {requests.length > 0 && (
-        <Card className="w-full max-w-3xl mx-auto mb-8 rounded-md shadow-md">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold">Page Reference String:</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-2 justify-center">
-            {requests.map((page, idx) => (
-              <span key={idx} className="px-2 py-1 bg-gray-100 text-sm border rounded dark:text-black">
-                {page}
-              </span>
-            ))}
-          </CardContent>
-        </Card>
-      )}
+  {/* Simulation Controls and Visualizer */}
+  {steps.length > 0 && (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
 
-      {/* Simulation Controls and Visualizer */}
-      <main className=''>
-        {steps.length > 0 && (
-          <div className="flex flex-row items-center gap-12 w-full">
-            {/* Left: Controls */}
-            <div className="flex flex-col items-center gap-6 w-64">
-              <SimulationControls
-                isPlaying={isPlaying}
-                onPlay={() => setIsPlaying(true)}
-                onPause={() => setIsPlaying(false)}
-                onStep={() => setCurrentStep((s) => Math.min(s + 1, steps.length - 1))}
-                onReset={() => setCurrentStep(0)}
-                speed={speed}
-                setSpeed={setSpeed}
-              />
-            </div>
+      {/* Controls */}
+      <SimulationControls
+        isPlaying={isPlaying}
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+        onStep={() => setCurrentStep((s) => Math.min(s + 1, steps.length - 1))}
+        onReset={() => setCurrentStep(0)}
+        speed={speed}
+        setSpeed={setSpeed}
+      />
 
-            {/* Middle: Visualizer */}
-            <div className="flex flex-col items-center w-96">
-              <Label className="text-sm text-center mb-4">
-                Current Request: <strong>{steps[currentStep].current}</strong>
-              </Label>
-              <CacheVisualizer step={steps[currentStep]} />
-            </div>
+      {/* Visualizer */}
+      <div className="flex flex-col items-center">
+        <Label className="text-xl mb-2">
+          Current Request: <span className="font-bold">{steps[currentStep]?.current}</span>
+        </Label>
+        <CacheVisualizer step={steps[currentStep]} />
+      </div>
 
-            {/* Right: Stats */}
-            <StatsDashboard
-              totalRequests={totalRequests}
-              totalHits={totalHits}
-              totalFaults={totalFaults}
-            />
-          </div>
-        )}
-      </main>
-
-    </section>
+      {/* Statistics */}
+      <StatsDashboard
+        totalRequests={totalRequests}
+        totalHits={totalHits}
+        totalFaults={totalFaults}
+      />
+    </div>
+  )}
+</section>
 
   );
 };
