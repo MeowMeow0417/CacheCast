@@ -12,7 +12,6 @@ import {
   Card, CardHeader, CardTitle, CardContent,
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input';
-import { Skeleton } from '@/components/ui/skeleton';
 
 
 // Generate better page request patterns
