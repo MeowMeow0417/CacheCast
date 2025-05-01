@@ -318,8 +318,7 @@ const CacheSim: React.FC = () => {
   }, [isPlaying, speed, steps]);
 
   return (
-    // TODO: deploy
-    <section className="flex flex-col p-6 w-[1400px] mx-auto h-screen">
+    <section className="flex flex-col p-6 w-full mx-auto h-screen">
 
     {/* Title */}
     <Label className="text-2xl font-bold mb-6 text-center">
@@ -327,10 +326,10 @@ const CacheSim: React.FC = () => {
     </Label>
 
     {/* Main Layout: Aside Left, Right Stack */}
-    <div className="flex flex-1 gap-6">
+    <div className="flex flex-col md:flex-row gap-6">
 
       {/* Left: Aside + Controls */}
-      <div className="flex flex-col gap-6 w-full max-w-sm">
+      <div className="flex flex-col gap-6 w-full md:max-w-sm">
 
         {/* Aside Controls */}
         <aside className="border p-6 rounded-lg shadow-md flex flex-col gap-6" suppressHydrationWarning>
@@ -382,26 +381,24 @@ const CacheSim: React.FC = () => {
         </aside>
 
         {/* Simulation Controls */}
-
-        {steps.length > 0 ?
+        {steps.length > 0 && (
           <SimulationControls
-          isPlaying={isPlaying}
-          onPlay={() => setIsPlaying(true)}
-          onPause={() => setIsPlaying(false)}
-          onStep={() => setCurrentStep((s) => Math.min(s + 1, steps.length - 1))}
-          onReset={() => setCurrentStep(0)}
-          speed={speed}
-          setSpeed={setSpeed}
-          /> :
-          <Skeleton className="w-96 h-72 rounded-md" />
-        }
+            isPlaying={isPlaying}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            onStep={() => setCurrentStep((s) => Math.min(s + 1, steps.length - 1))}
+            onReset={() => setCurrentStep(0)}
+            speed={speed}
+            setSpeed={setSpeed}
+          />
+        )}
       </div>
 
       {/* Right: PageRefs -> CurrentRequest -> Statistics */}
-      <div className="flex flex-col flex-1 gap-6">
+      <div className="flex flex-col flex-1 gap-6 sm:pb-24">
 
         {/* Page Reference String */}
-        {requests.length > 0 ?
+        {requests.length > 0 ? (
           <Card className="w-full">
             <CardHeader>
               <CardTitle className="text-lg font-semibold">Page Reference String</CardTitle>
@@ -417,9 +414,11 @@ const CacheSim: React.FC = () => {
               ))}
             </CardContent>
           </Card>
-        :
-        <Skeleton className="w-[950px] h-32 rounded-md" />
-        }
+        ) : (
+          <section className="flex flex-row justify-center items-center min-h-full">
+            <Label>Click Generate Requests to start simulation.</Label>
+          </section>
+        )}
 
         {/* Current Request Visualizer */}
         {steps.length > 0 && (
@@ -439,10 +438,10 @@ const CacheSim: React.FC = () => {
             totalFaults={totalFaults}
           />
         )}
-
       </div>
     </div>
-    </section>
+  </section>
+
 
   );
 };
