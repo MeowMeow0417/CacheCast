@@ -133,6 +133,20 @@ const CacheVisualizer: React.FC<{
 }> = ({ step }) => (
   <Card className="flex gap-2 p-6 border rounded-xl w-full justify-center flex-row text-center">
     <AnimatePresence>
+
+       {/* Render Evicted Page Separately */}
+       {step.evicted && (
+        <motion.div
+          key={`evicted-${step.evicted}`}
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.5, opacity: 0 }}
+          className="px-4 py-2 rounded-full border text-sm font-medium transition-all duration-300 bg-red-200 border-red-500 dark:text-black z-10"
+        >
+          {step.evicted}
+        </motion.div>
+      )}
+
       {/* Render Cache Pages */}
       {step.cache.map((page) => (
         <motion.div
@@ -149,18 +163,7 @@ const CacheVisualizer: React.FC<{
         </motion.div>
       ))}
 
-      {/* Render Evicted Page Separately */}
-      {step.evicted && (
-        <motion.div
-          key={`evicted-${step.evicted}`}
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.5, opacity: 0 }}
-          className="px-4 py-2 rounded-full border text-sm font-medium transition-all duration-300 bg-red-200 border-red-500 dark:text-black z-10"
-        >
-          {step.evicted}
-        </motion.div>
-      )}
+
     </AnimatePresence>
   </Card>
 );
@@ -251,11 +254,18 @@ const StatsDashboard: React.FC<{
   );
 };
 
+type CacheStep = {
+  cache: string[];
+  current: string;
+  hit: boolean;
+  evicted: string | null;
+};
+
 const CacheSim: React.FC = () => {
   const [cacheSize, setCacheSize] = useState(3);
   const [numRequests, setNumRequests] = useState(20);
   const [requests, setRequests] = useState<string[]>([]);
-  const [steps, setSteps] = useState<any[]>([]);
+  const [steps, setSteps] = useState<CacheStep[]>([]); // linting here
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
@@ -265,7 +275,7 @@ const CacheSim: React.FC = () => {
 
   const runSimulation = () => {
     const reqs = generateRequests(numRequests);
-    let builtSteps: any[] = [];
+    let builtSteps: CacheStep[] = []; //linting here
 
     if (algorithm === 'FIFO') {
       builtSteps = buildFIFOSteps(reqs, cacheSize);
@@ -308,7 +318,7 @@ const CacheSim: React.FC = () => {
   }, [isPlaying, speed, steps]);
 
   return (
-    // TODO: have a skeleton setted for as blank, before any generation
+    // TODO: deploy
     <section className="flex flex-col p-6 w-[1400px] mx-auto h-screen">
 
     {/* Title */}
@@ -344,7 +354,7 @@ const CacheSim: React.FC = () => {
               type="number"
               value={cacheSize}
               min={1}
-              max={20}
+              max={10}
               onChange={(e) => setCacheSize(parseInt(e.target.value))}
             />
           </div>
@@ -355,7 +365,7 @@ const CacheSim: React.FC = () => {
               type="number"
               value={numRequests}
               min={1}
-              max={100}
+              max={50}
               onChange={(e) => setNumRequests(parseInt(e.target.value))}
             />
           </div>

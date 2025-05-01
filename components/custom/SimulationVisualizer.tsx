@@ -75,7 +75,7 @@ export const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({
   useEffect(() => {
     let i = 0;
     const run = () => {
-      simulate(algorithm, requests, cacheSize, (newCache, currentReq, hit) => {
+      simulate(algorithm, requests, cacheSize, (newCache, currentReq) => {
         setTimeout(() => {
           setCache(newCache);
           setCurrent(currentReq);
