@@ -1,12 +1,16 @@
 {
-  "name": "weather-app",
+  "name": "cachesimulator",
   "version": "0.1.0",
   "private": true,
+  "main": "electron/main.js",
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
+    "dev": "concurrently next dev \"npm run next\" \"npm run electron:dev\"",
+    "next": "next dev --turbopack",
+    "build": "next build && next start",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "electron:dev": "wait-on http://localhost:3000 && electron .",
+    "electron:pack": "cross-env NODE_ENV=production electron-builder"
   },
   "dependencies": {
     "@radix-ui/react-dropdown-menu": "^2.1.12",
@@ -33,9 +37,32 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "electron": "^36.1.0",
+    "electron-builder": "^26.0.12",
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wait-on": "^8.0.3"
+  },
+  "build": {
+    "appId": "com.yourcompany.cachesimulator",
+    "productName": "CacheSimulator",
+    "files": [
+      "out",
+      "electron",
+      "electron/main.js"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    }
   }
 }
